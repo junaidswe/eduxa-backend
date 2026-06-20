@@ -11,10 +11,17 @@ import type { LoginInput, RegisterInput } from "../validators/auth.validators";
 
 const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
-const sanitizeUser = (user: { id: string; email: string; name: string; role: "USER" | "ADMIN" }) => ({
+const sanitizeUser = (user: {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: "USER" | "ADMIN";
+}) => ({
   id: user.id,
   email: user.email,
-  name: user.name,
+  first_name: user.first_name,
+  last_name: user.last_name,
   role: user.role,
 });
 
@@ -39,7 +46,12 @@ export const registerUser = async (input: RegisterInput) => {
 
   const passwordHash = await bcrypt.hash(input.password, 12);
   const user = await prisma.user.create({
-    data: { email: input.email, password: passwordHash, name: input.name },
+    data: {
+      email: input.email,
+      password: passwordHash,
+      first_name: input.first_name,
+      last_name: input.last_name,
+    },
   });
 
   const tokens = await issueTokenPair(user);

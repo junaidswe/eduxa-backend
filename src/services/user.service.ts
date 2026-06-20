@@ -11,7 +11,7 @@ export const getUserProfile = async (userId: string) => {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, email: true, name: true, role: true, createdAt: true },
+    select: { id: true, email: true, first_name: true, last_name: true, role: true, createdAt: true },
   });
   if (!user) throw ApiError.notFound("User not found");
 
@@ -19,11 +19,14 @@ export const getUserProfile = async (userId: string) => {
   return user;
 };
 
-export const updateUserProfile = async (userId: string, data: { name?: string }) => {
+export const updateUserProfile = async (
+  userId: string,
+  data: { first_name?: string; last_name?: string }
+) => {
   const user = await prisma.user.update({
     where: { id: userId },
     data,
-    select: { id: true, email: true, name: true, role: true, createdAt: true },
+    select: { id: true, email: true, first_name: true, last_name: true, role: true, createdAt: true },
   });
   await redis.del(profileCacheKey(userId));
   return user;
@@ -36,7 +39,7 @@ export const listUsers = async (page: number, limit: number) => {
       skip,
       take: limit,
       orderBy: { createdAt: "desc" },
-      select: { id: true, email: true, name: true, role: true, createdAt: true },
+      select: { id: true, email: true, first_name: true, last_name: true, role: true, createdAt: true },
     }),
     prisma.user.count(),
   ]);
